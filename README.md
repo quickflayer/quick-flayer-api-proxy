@@ -1,86 +1,123 @@
 # Quick Flayer Monorepo
 
-## Repository Setup
+## Overview
 
-This is a monorepo managed with `pnpm` workspaces and Git submodules.
+Quick Flayer is a modern, scalable multi-platform application ecosystem built with:
+- React Native (Expo) for mobile
+- Next.js for web
+- NestJS for backend API
 
-### Cloning the Repository
+## Repository Structure
 
-To clone the repository with all submodules:
+```
+quick-flayer-root/
+├── app/
+│   ├── quick-flayer-app/     # React Native mobile app
+│   ├── quick-flayer-web/     # Next.js web application
+│   └── quick-flayer-api/     # NestJS backend API
+├── .npmrc                    # PNPM configuration
+├── pnpm-workspace.yaml       # Workspace configuration
+└── tsconfig.base.json        # Shared TypeScript configuration
+```
+
+## Prerequisites
+
+- **Node.js**: v20.x LTS
+- **pnpm**: Latest version (will be installed if not present)
+- **Git**: Latest version with submodule support
+
+## Getting Started
+
+### 1. Clone the Repository
 
 ```bash
 git clone --recurse-submodules git@github.com:quick-flayer/quick-flayer-root.git
+cd quick-flayer-root
 ```
 
-### Installing Dependencies
-
-Ensure you have `pnpm` installed globally:
+### 2. Install Dependencies
 
 ```bash
+# Install pnpm globally (if not already installed)
 npm install -g pnpm
-```
 
-Then install dependencies:
-
-```bash
+# Install all project dependencies
 pnpm install
 ```
 
-### Managing Submodules
+## Development Workflows
 
-- To update submodules: 
-  ```bash
-  git submodule update --recursive
-  ```
+### Running Applications
 
-- To pull latest changes in all submodules:
-  ```bash
-  git submodule foreach git pull origin main
-  ```
-
-### Workspace Structure
-
-- `app/`: Contains all application submodules
-  - `quick-flayer-app`
-  - `quick-flayer-web`
-  - `quick-flayer-api`
-
-## Application Setup
-
-We provide two scripts to set up the applications in this monorepo:
-
-- `setup_apps.sh` (for Unix-like systems)
-- `setup_apps.ps1` (for Windows)
-
-### Prerequisites
-
-- Node.js v20.x LTS
-- pnpm (will be installed if not present)
-
-### Setup Instructions
-
-1. Clone the repository
-2. Run the appropriate setup script:
-
-**Unix/Mac:**
 ```bash
-chmod +x setup_apps.sh
-./setup_apps.sh
+# Run all applications concurrently
+pnpm dev:all
+
+# Run specific applications
+pnpm dev:app    # Mobile app
+pnpm dev:web    # Web application
+pnpm dev:api    # Backend API
 ```
 
-**Windows:**
-```powershell
-.\setup_apps.ps1
+### Building Applications
+
+```bash
+# Build all applications
+pnpm build:all
+
+# Build specific application
+pnpm --filter quick-flayer-web build
 ```
 
-The scripts will:
-- Create three applications in the `app/` directory
-- Initialize Git repositories for each application
-- Install necessary dependencies
-- Set up basic project structures
+### Linting and Testing
 
-### Applications
+```bash
+# Lint all applications
+pnpm lint:all
 
-1. **quick-flayer-app**: React Native mobile app with Expo
-2. **quick-flayer-web**: Next.js web application
-3. **quick-flayer-api**: NestJS backend API
+# Run tests for all applications
+pnpm test:all
+```
+
+## Dependency Management
+
+- Uses PNPM workspaces for efficient dependency management
+- Shared dependencies are hoisted at the root level
+- Platform-specific dependencies are isolated
+
+## Environment Configuration
+
+- Copy `.env.example` to `.env` in each application
+- Customize environment variables as needed
+
+## Submodule Management
+
+```bash
+# Update all submodules
+git submodule update --recursive
+
+# Pull latest changes in all submodules
+git submodule foreach git pull origin main
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## Troubleshooting
+
+- Ensure Node.js and pnpm versions match prerequisites
+- Clear PNPM store if dependency issues occur: `pnpm store prune`
+- Check individual app READMEs for specific setup instructions
+
+## License
+
+[Specify your license here]
+
+## Contact
+
+[Provide contact information or support channels]
