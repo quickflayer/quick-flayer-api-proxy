@@ -2,7 +2,26 @@
   "name": "quick-flayer-monorepo",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "scripts": {
+    "install:all": "pnpm install",
+    "dev:app": "pnpm --filter quick-flayer-app dev",
+    "dev:web": "pnpm --filter quick-flayer-web dev",
+    "dev:api": "pnpm --filter quick-flayer-api start:dev",
+    "build:all": "pnpm --filter '*' build",
+    "lint:all": "pnpm --filter '*' lint",
+    "test:all": "pnpm --filter '*' test",
+    "clean": "pnpm --filter '*' clean && rm -rf node_modules",
+    "dev:all": "concurrently \"pnpm dev:api\" \"pnpm dev:web\" \"pnpm dev:app\""
+  },
   "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.1.0",
     "pnpm": "^9.0.0"
   }
 }
