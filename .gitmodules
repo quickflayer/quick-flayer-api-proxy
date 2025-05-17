@@ -1,0 +1,9 @@
+[submodule "app/quick-flayer-app"]
+	path = app/quick-flayer-app
+	url = git@github.com:quick-flayer/quick-flayer-app.git
+[submodule "app/quick-flayer-web"]
+	path = app/quick-flayer-web
+	url = git@github.com:quick-flayer/quick-flayer-web.git
+[submodule "app/quick-flayer-api"]
+	path = app/quick-flayer-api
+	url = git@github.com:quick-flayer/quick-flayer-api.git
