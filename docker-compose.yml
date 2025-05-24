@@ -24,22 +24,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Redis Cache
-  redis:
-    image: redis:7-alpine
-    container_name: quick-flayer-redis
-    restart: unless-stopped
-    # Redis ports not exposed to host - only accessible within Docker network
-    volumes:
-      - redis_data:/data
-    networks:
-      - quick-flayer-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   # NestJS API
   api:
     build:
@@ -51,7 +35,6 @@ services:
     environment:
       NODE_ENV: development
       DATABASE_URL: postgresql://quick_flayer_user:${DB_PASSWORD:-dev_password}@postgres:5432/quick_flayer_db
-      REDIS_URL: redis://redis:6379
       API_PORT: 3001
       JWT_SECRET: ${JWT_SECRET:-dev_jwt_secret}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000,http://localhost:19006}
@@ -59,14 +42,11 @@ services:
       - "${API_PORT:-3001}:3001"
     volumes:
       - ./app/quick-flayer-api:/app
-      - quick-flayer-api-pnpm-store:/app/.pnpm-store
-    entrypoint: [ "sh", "./docker/api/entrypoint.sh" ]
+      - quick-flayer-api-node-modules:/app/node_modules
     networks:
       - quick-flayer-network
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:3001/health || exit 1"]
@@ -92,44 +72,17 @@ services:
       # Don't mount node_modules from host, let container manage its own modules
       - quick-flayer-web-node-modules:/app/node_modules
       - /app/.next
-      - quick-flayer-web-pnpm-store:/app/.pnpm-store
     networks:
       - quick-flayer-network
     depends_on:
       - api
 
-  # pgAdmin (Database Management UI)
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: quick-flayer-pgadmin
-    restart: unless-stopped
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@quickflayer.com
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-    ports:
-      - "${PGADMIN_PORT:-5050}:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    networks:
-      - quick-flayer-network
-    depends_on:
-      - postgres
-
 volumes:
   postgres_data:
     driver: local
-  redis_data:
-    driver: local
-  pgadmin_data:
-    driver: local
   quick-flayer-web-node-modules:
     driver: local
-  quick-flayer-web-pnpm-store:
-    driver: local
   quick-flayer-api-node-modules:
-    driver: local
-  quick-flayer-api-pnpm-store:
     driver: local
 
 networks:
