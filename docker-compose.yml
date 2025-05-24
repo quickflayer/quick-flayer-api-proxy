@@ -43,6 +43,7 @@ services:
     volumes:
       - ./app/quick-flayer-api:/app
       - quick-flayer-api-node-modules:/app/node_modules
+      - pnpm-store:/pnpm-store
     networks:
       - quick-flayer-network
     depends_on:
@@ -71,6 +72,7 @@ services:
       - ./app/quick-flayer-web:/app
       # Don't mount node_modules from host, let container manage its own modules
       - quick-flayer-web-node-modules:/app/node_modules
+      - pnpm-store:/pnpm-store
       - /app/.next
     networks:
       - quick-flayer-network
@@ -83,6 +85,8 @@ volumes:
   quick-flayer-web-node-modules:
     driver: local
   quick-flayer-api-node-modules:
+    driver: local
+  pnpm-store:
     driver: local
 
 networks:
