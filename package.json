@@ -1,0 +1,8 @@
+{
+  "name": "quick-flayer-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "devDependencies": {
+    "pnpm": "^9.0.0"
+  }
+}
