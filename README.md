@@ -44,3 +44,43 @@ pnpm install
   - `quick-flayer-app`
   - `quick-flayer-web`
   - `quick-flayer-api`
+
+## Application Setup
+
+We provide two scripts to set up the applications in this monorepo:
+
+- `setup_apps.sh` (for Unix-like systems)
+- `setup_apps.ps1` (for Windows)
+
+### Prerequisites
+
+- Node.js v20.x LTS
+- pnpm (will be installed if not present)
+
+### Setup Instructions
+
+1. Clone the repository
+2. Run the appropriate setup script:
+
+**Unix/Mac:**
+```bash
+chmod +x setup_apps.sh
+./setup_apps.sh
+```
+
+**Windows:**
+```powershell
+.\setup_apps.ps1
+```
+
+The scripts will:
+- Create three applications in the `app/` directory
+- Initialize Git repositories for each application
+- Install necessary dependencies
+- Set up basic project structures
+
+### Applications
+
+1. **quick-flayer-app**: React Native mobile app with Expo
+2. **quick-flayer-web**: Next.js web application
+3. **quick-flayer-api**: NestJS backend API
