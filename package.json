@@ -1,5 +1,5 @@
 {
-  "name": "quick-flayer-monorepo",
+  "name": "quick-flayer-root",
   "version": "1.0.0",
   "private": true,
   "engines": {
@@ -15,7 +15,23 @@
     "lint:all": "pnpm --filter '*' lint",
     "test:all": "pnpm --filter '*' test",
     "clean": "pnpm --filter '*' clean && rm -rf node_modules",
-    "dev:all": "concurrently \"pnpm dev:api\" \"pnpm dev:web\" \"pnpm dev:app\""
+    "dev:all": "concurrently \"pnpm dev:api\" \"pnpm dev:web\" \"pnpm dev:app\"",
+    "docker:dev": "docker-compose up -d",
+    "docker:prod": "docker-compose -f docker-compose.prod.yml up -d",
+    "docker:build": "docker-compose build",
+    "docker:build:api": "docker-compose build api",
+    "docker:build:web": "docker-compose build web", 
+    "docker:build:app": "docker-compose build app",
+    "docker:logs": "docker-compose logs -f",
+    "docker:logs:api": "docker-compose logs -f api",
+    "docker:logs:web": "docker-compose logs -f web",
+    "docker:logs:app": "docker-compose logs -f app",
+    "docker:down": "docker-compose down",
+    "docker:clean": "docker-compose down -v --remove-orphans",
+    "docker:restart": "docker-compose restart",
+    "docker:shell:api": "docker-compose exec api sh",
+    "docker:shell:web": "docker-compose exec web sh",
+    "docker:shell:app": "docker-compose exec app sh"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
