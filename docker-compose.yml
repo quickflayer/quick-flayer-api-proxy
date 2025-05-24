@@ -44,7 +44,7 @@ services:
   # NestJS API
   api:
     build:
-      context: ./app/quick-flayer-api
+      context: ./
       dockerfile: docker/api/Dockerfile
       target: development
     container_name: quick-flayer-api
@@ -78,8 +78,8 @@ services:
   # Next.js Web Application
   web:
     build:
-      context: ./app/quick-flayer-web
-      dockerfile: ../../docker/web/Dockerfile
+      context: ./
+      dockerfile: docker/web/Dockerfile
       target: development
     container_name: quick-flayer-web
     restart: unless-stopped
