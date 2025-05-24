@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -8,6 +10,23 @@ import { ThrottlerModule } from '@nestjs/throttler';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.docker', '.env'],
+    }),
+    
+    // Database connection
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('DB_HOST', 'postgres'),
+        port: configService.get('DB_PORT', 5432),
+        username: configService.get('DB_USERNAME', 'quick_flayer_user'),
+        password: configService.get('DB_PASSWORD', 'dev_password'),
+        database: configService.get('DB_DATABASE', 'quick_flayer_db'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: configService.get('NODE_ENV', 'development') === 'development',
+        logging: configService.get('NODE_ENV', 'development') === 'development',
+      }),
     }),
     
     // Rate limiting
@@ -20,7 +39,8 @@ import { ThrottlerModule } from '@nestjs/throttler';
       ],
     }),
     
-    // Add other modules here
+    // Application modules
+    HealthModule,
   ],
   controllers: [],
   providers: [],
