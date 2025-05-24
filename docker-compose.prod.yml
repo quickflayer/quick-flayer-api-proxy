@@ -1,0 +1,121 @@
+version: '3.8'
+
+services:
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: quick-flayer-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+    networks:
+      - quick-flayer-network
+    depends_on:
+      - api
+      - web
+
+  # PostgreSQL Database (Production)
+  postgres:
+    image: postgres:15-alpine
+    container_name: quick-flayer-postgres-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: quick_flayer_db
+      POSTGRES_USER: quick_flayer_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./app/quick-flayer-api/docker/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - quick-flayer-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quick_flayer_user -d quick_flayer_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: quick-flayer-redis-prod
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    networks:
+      - quick-flayer-network
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a ${REDIS_PASSWORD} ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # NestJS API
+  api:
+    build:
+      context: ./app/quick-flayer-api
+      dockerfile: docker/api/Dockerfile
+      target: production
+    container_name: quick-flayer-api-prod
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://quick_flayer_user:${DB_PASSWORD}@postgres:5432/quick_flayer_db
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      API_PORT: 3001
+      JWT_SECRET: ${JWT_SECRET}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+    networks:
+      - quick-flayer-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3001/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Next.js Web Application
+  web:
+    build:
+      context: ./app/quick-flayer-web
+      dockerfile: ../../docker/web/Dockerfile
+      target: production
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    container_name: quick-flayer-web-prod
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+    networks:
+      - quick-flayer-network
+    depends_on:
+      - api
+
+  # Optional: React Native/Expo Web Build
+  # app_web:
+  #   image: nginx:alpine
+  #   container_name: quick-flayer-app-web
+  #   volumes:
+  #     - ./app/quick-flayer-app/web-build:/usr/share/nginx/html/app
+  #   networks:
+  #     - quick-flayer-network
+  #   depends_on:
+  #     - api
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  quick-flayer-network:
+    driver: bridge
