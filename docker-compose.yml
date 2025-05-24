@@ -60,7 +60,6 @@ services:
     volumes:
       - ./app/quick-flayer-api:/app
       - /app/node_modules
-      - /app/dist
     networks:
       - quick-flayer-network
     depends_on:
