@@ -29,8 +29,7 @@ services:
     image: redis:7-alpine
     container_name: quick-flayer-redis
     restart: unless-stopped
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
+    # Redis ports not exposed to host - only accessible within Docker network
     volumes:
       - redis_data:/data
     networks:
@@ -90,33 +89,10 @@ services:
       - "${WEB_PORT:-3000}:3000"
     volumes:
       - ./app/quick-flayer-web:/app
-      - /app/node_modules
+      # Don't mount node_modules from host, let container manage its own modules
+      - quick-flayer-web-node-modules:/app/node_modules
       - /app/.next
-    networks:
-      - quick-flayer-network
-    depends_on:
-      - api
-
-  # React Native/Expo App
-  app:
-    build:
-      context: ./app/quick-flayer-app
-      dockerfile: ../../docker/app/Dockerfile
-      target: development
-    container_name: quick-flayer-app
-    restart: unless-stopped
-    environment:
-      NODE_ENV: development
-      EXPO_PUBLIC_API_URL: ${EXPO_PUBLIC_API_URL:-http://localhost:3001}
-      EXPO_DEVTOOLS_LISTEN_ADDRESS: 0.0.0.0
-      REACT_NATIVE_PACKAGER_HOSTNAME: ${REACT_NATIVE_PACKAGER_HOSTNAME:-localhost}
-    ports:
-      - "19000:19000" # Expo app
-      - "19001:19001" # Metro bundler
-      - "19002:19002" # Expo dev tools
-    volumes:
-      - ./app/quick-flayer-app:/app
-      - /app/node_modules
+      - quick-flayer-web-pnpm-store:/app/.pnpm-store
     networks:
       - quick-flayer-network
     depends_on:
@@ -146,6 +122,10 @@ volumes:
   redis_data:
     driver: local
   pgadmin_data:
+    driver: local
+  quick-flayer-web-node-modules:
+    driver: local
+  quick-flayer-web-pnpm-store:
     driver: local
 
 networks:
