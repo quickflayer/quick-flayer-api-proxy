@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@quick-flayer/app/*": ["./app/quick-flayer-app/src/*"],
+      "@quick-flayer/web/*": ["./app/quick-flayer-web/src/*"],
+      "@quick-flayer/api/*": ["./app/quick-flayer-api/src/*"]
+    }
+  }
+}
