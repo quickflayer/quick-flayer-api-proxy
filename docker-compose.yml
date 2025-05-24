@@ -24,70 +24,85 @@ services:
       timeout: 5s
       retries: 5
 
-  # NestJS API
-  api:
-    build:
-      context: ./
-      dockerfile: docker/api/Dockerfile
-      target: development
-    container_name: quick-flayer-api
+  pdAdmin:
+    image: adminer:4.8.0
+    container_name: quick-flayer-adminer
     restart: unless-stopped
     environment:
-      NODE_ENV: development
-      DATABASE_URL: postgresql://quick_flayer_user:${DB_PASSWORD:-dev_password}@postgres:5432/quick_flayer_db
-      API_PORT: 3001
-      JWT_SECRET: ${JWT_SECRET:-dev_jwt_secret}
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000,http://localhost:19006}
+      ADMINER_DEFAULT_SERVER: postgres
+      ADMINER_DESIGN: peacock
     ports:
-      - "${API_PORT:-3001}:3001"
-    volumes:
-      - ./app/quick-flayer-api:/app
-      - quick-flayer-api-node-modules:/app/node_modules
-      - pnpm-store:/pnpm-store
+      - "${ADMINER_PORT:-8080}:8080"
     networks:
       - quick-flayer-network
     depends_on:
       postgres:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3001/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+
+  # NestJS API
+  # api:
+  #   build:
+  #     context: ./
+  #     dockerfile: docker/api/Dockerfile
+  #     target: development
+  #   container_name: quick-flayer-api
+  #   restart: unless-stopped
+  #   environment:
+  #     NODE_ENV: development
+  #     DATABASE_URL: postgresql://quick_flayer_user:${DB_PASSWORD:-dev_password}@postgres:5432/quick_flayer_db
+  #     API_PORT: 3001
+  #     JWT_SECRET: ${JWT_SECRET:-dev_jwt_secret}
+  #     CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000,http://localhost:19006}
+  #   ports:
+  #     - "${API_PORT:-3001}:3001"
+  #   volumes:
+  #     - ./app/quick-flayer-api:/app
+  #     - quick-flayer-api-node-modules:/app/node_modules
+  #     - pnpm-store:/pnpm-store
+  #   networks:
+  #     - quick-flayer-network
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl -f http://localhost:3001/health || exit 1"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
 
   # Next.js Web Application
-  web:
-    build:
-      context: ./
-      dockerfile: docker/web/Dockerfile
-      target: development
-    container_name: quick-flayer-web
-    restart: unless-stopped
-    environment:
-      NODE_ENV: development
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
-    ports:
-      - "${WEB_PORT:-3000}:3000"
-    volumes:
-      - ./app/quick-flayer-web:/app
-      # Don't mount node_modules from host, let container manage its own modules
-      - quick-flayer-web-node-modules:/app/node_modules
-      - pnpm-store:/pnpm-store
-      - /app/.next
-    networks:
-      - quick-flayer-network
-    depends_on:
-      - api
+  # web:
+  #   build:
+  #     context: ./
+  #     dockerfile: docker/web/Dockerfile
+  #     target: development
+  #   container_name: quick-flayer-web
+  #   restart: unless-stopped
+  #   environment:
+  #     NODE_ENV: development
+  #     NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+  #   ports:
+  #     - "${WEB_PORT:-3000}:3000"
+  #   volumes:
+  #     - ./app/quick-flayer-web:/app
+  #     # Don't mount node_modules from host, let container manage its own modules
+  #     - quick-flayer-web-node-modules:/app/node_modules
+  #     - pnpm-store:/pnpm-store
+  #     - /app/.next
+  #   networks:
+  #     - quick-flayer-network
+  #   depends_on:
+  #     - api
 
 volumes:
   postgres_data:
     driver: local
-  quick-flayer-web-node-modules:
-    driver: local
-  quick-flayer-api-node-modules:
-    driver: local
-  pnpm-store:
-    driver: local
+  # quick-flayer-web-node-modules:
+  #   driver: local
+  # quick-flayer-api-node-modules:
+  #   driver: local
+  # pnpm-store:
+  #   driver: local
 
 networks:
   quick-flayer-network:
