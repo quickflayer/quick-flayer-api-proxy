@@ -59,7 +59,8 @@ services:
       - "${API_PORT:-3001}:3001"
     volumes:
       - ./app/quick-flayer-api:/app
-      - /app/node_modules
+      - quick-flayer-api-pnpm-store:/app/.pnpm-store
+    entrypoint: [ "sh", "./docker/api/entrypoint.sh" ]
     networks:
       - quick-flayer-network
     depends_on:
@@ -125,6 +126,10 @@ volumes:
   quick-flayer-web-node-modules:
     driver: local
   quick-flayer-web-pnpm-store:
+    driver: local
+  quick-flayer-api-node-modules:
+    driver: local
+  quick-flayer-api-pnpm-store:
     driver: local
 
 networks:

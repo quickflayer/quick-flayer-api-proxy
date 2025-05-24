@@ -1,24 +1,28 @@
 # Multi-stage build for production optimization
 FROM node:20-alpine AS base
 WORKDIR /app
-RUN npm install -g @nestjs/cli
+# Install pnpm and NestJS CLI globally
+RUN npm install -g pnpm @nestjs/cli
+# Set up pnpm store for better performance
+RUN pnpm config set store-dir /app/.pnpm-store
 
 # Dependencies stage
 FROM base AS deps
 COPY package.json ./
-RUN npm install --frozen-lockfile
+# Install dependencies
+RUN pnpm install
 
 # Build stage
 FROM base AS build
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
-RUN npm run build
+RUN pnpm run build
 
 # Production stage
 FROM base AS production
 ENV NODE_ENV=production
 COPY package.json ./
-RUN npm install --frozen-lockfile --prod
+RUN pnpm install --prod
 COPY --from=build /app/dist ./dist
 EXPOSE 3001
 CMD ["node", "dist/main.js"]
@@ -27,7 +31,9 @@ CMD ["node", "dist/main.js"]
 FROM base AS development
 ENV NODE_ENV=development
 COPY package.json ./
-RUN npm install --frozen-lockfile
+# Install all dependencies including devDependencies
+RUN pnpm install
+# Copy the rest of the application code
 COPY . .
 EXPOSE 3001
-CMD ["npm", "run", "start:dev"]
+CMD ["pnpm", "run", "start:dev"]
