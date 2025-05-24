@@ -17,7 +17,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "clean": "rm -rf node_modules dist"
+    "clean": "rimraf node_modules dist",
+    "prepare": "pnpm install"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
