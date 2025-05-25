@@ -14,7 +14,7 @@
     "build:all": "pnpm --filter '*' build",
     "lint:all": "pnpm --filter '*' lint",
     "test:all": "pnpm --filter '*' test",
-    "clean": "pnpm --filter '*' clean && rm -rf node_modules",
+    "clean": "pnpm --filter '*' clean && rm node_modules",
     "dev:all": "concurrently \"pnpm dev:api\" \"pnpm dev:web\" \"pnpm dev:app\"",
     "docker:dev": "docker-compose up -d",
     "docker:prod": "docker-compose -f docker-compose.prod.yml up -d",
