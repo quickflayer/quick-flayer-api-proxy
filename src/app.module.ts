@@ -22,11 +22,7 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        host: configService.get('DB_HOST', 'postgres'),
-        port: configService.get('DB_PORT', 5432),
-        username: configService.get('DB_USERNAME', 'postgres'),
-        password: configService.get('DB_PASSWORD', 'password'),
-        database: configService.get('DB_DATABASE', 'postgres'),
+        url: configService.get<string>('DATABASE_URL'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: configService.get('NODE_ENV', 'development') === 'development',
         logging: configService.get('NODE_ENV', 'development') === 'development',
