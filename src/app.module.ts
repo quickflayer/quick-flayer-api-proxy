@@ -26,6 +26,13 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: configService.get('NODE_ENV', 'development') === 'development',
         logging: configService.get('NODE_ENV', 'development') === 'development',
+        ssl: configService.get('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
+        // Fix for SCRAM-SHA-256 authentication
+        options: {
+          // This forces the pg driver to use the SCRAM-SHA-256 authentication method
+          // even when connecting to providers that might expect MD5
+          authenticationMechanism: 'scram-sha-256',
+        },
       }),
     }),
     
