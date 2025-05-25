@@ -1,8 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
+import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthModule } from './health/health.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { RolesGuard } from './modules/auth/guards/roles.guard';
 
 @Module({
   imports: [
@@ -20,9 +24,9 @@ import { HealthModule } from './health/health.module';
         type: 'postgres',
         host: configService.get('DB_HOST', 'postgres'),
         port: configService.get('DB_PORT', 5432),
-        username: configService.get('DB_USERNAME', 'quick_flayer_user'),
-        password: configService.get('DB_PASSWORD', 'dev_password'),
-        database: configService.get('DB_DATABASE', 'quick_flayer_db'),
+        username: configService.get('DB_USERNAME', 'postgres'),
+        password: configService.get('DB_PASSWORD', 'password'),
+        database: configService.get('DB_DATABASE', 'postgres'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: configService.get('NODE_ENV', 'development') === 'development',
         logging: configService.get('NODE_ENV', 'development') === 'development',
@@ -41,8 +45,29 @@ import { HealthModule } from './health/health.module';
     
     // Application modules
     HealthModule,
+    AuthModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+    {
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({
+        whitelist: true,
+        transform: true,
+        forbidNonWhitelisted: true,
+        transformOptions: {
+          enableImplicitConversion: true,
+        },
+      }),
+    },
+  ],
 })
 export class AppModule {}

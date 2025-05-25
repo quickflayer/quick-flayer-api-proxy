@@ -5,9 +5,9 @@ services:
     container_name: quick-flayer-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: quick_flayer_db
-      POSTGRES_USER: quick_flayer_user
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-dev_password}
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "${DB_PORT:-5432}:5432"
@@ -17,7 +17,7 @@ services:
     networks:
       - quick-flayer-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U quick_flayer_user -d quick_flayer_db"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
