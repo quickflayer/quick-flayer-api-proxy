@@ -3,7 +3,6 @@ import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { HealthModule } from './health';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
@@ -22,9 +21,6 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         const dbUrl = configService.get<string>('DATABASE_URL');
-        console.log('Initializing database connection...');
-        
-        // Create direct connection to Supabase
         return {
           type: 'postgres',
           url: dbUrl,
@@ -66,9 +62,6 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
         },
       ],
     }),
-    
-    // Application modules
-    HealthModule,
     AuthModule,
   ],
   controllers: [],
