@@ -23,11 +23,8 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   // Enable CORS
-  const corsOrigins = process.env.CORS_ORIGIN ? 
-    process.env.CORS_ORIGIN.split(',') : 
-    ['http://localhost:3000', 'http://localhost:19006'];
   app.enableCors({
-    origin: corsOrigins,
+    origin: '*',
     credentials: true,
   });
 

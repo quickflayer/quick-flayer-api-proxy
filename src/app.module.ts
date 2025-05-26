@@ -3,7 +3,7 @@ import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { HealthModule } from './health/health.module';
+import { HealthModule } from './health';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
@@ -20,20 +20,41 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        url: configService.get<string>('DATABASE_URL'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: configService.get('NODE_ENV', 'development') === 'development',
-        logging: configService.get('NODE_ENV', 'development') === 'development',
-        ssl: configService.get('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
-        // Fix for SCRAM-SHA-256 authentication
-        options: {
-          // This forces the pg driver to use the SCRAM-SHA-256 authentication method
-          // even when connecting to providers that might expect MD5
-          authenticationMechanism: 'scram-sha-256',
-        },
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const dbUrl = configService.get<string>('DATABASE_URL');
+        console.log('Initializing database connection...');
+        
+        // Create direct connection to Supabase
+        return {
+          type: 'postgres',
+          url: dbUrl,
+          entities: [__dirname + '/**/*.entity{.ts,.js}'],
+          synchronize: configService.get('NODE_ENV', 'development') === 'development',
+          logging: configService.get('NODE_ENV', 'development') === 'development',
+          autoLoadEntities: true,
+          // Critical for Supabase connection
+          ssl: {
+            rejectUnauthorized: false
+          },
+          // Disable native pg-native for better compatibility
+          native: false,
+          // Disable debug logs
+          debug: false,
+          // Connection pool configuration
+          poolSize: 10,
+          // Maximum number of connection retries
+          retryAttempts: 10,
+          // Retry delay in milliseconds
+          retryDelay: 3000,
+          connectTimeoutMS: 30000,
+          extra: {
+            // IPv4 only
+            family: 4,
+            // Increase timeout
+            connectionTimeoutMillis: 30000
+          }
+        };
+      },
     }),
     
     // Rate limiting
