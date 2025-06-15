@@ -21,21 +21,21 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         const dbUrl = configService.get<string>('DATABASE_URL');
-        return {
-          type: 'postgres',
+        const nodeEnv = configService.get('NODE_ENV', 'development');
+        const isProduction = nodeEnv === 'production';
+        const isLocalDev = dbUrl?.includes('localhost') || dbUrl?.includes('127.0.0.1');
+
+        console.log(`Database configuration: ENV=${nodeEnv}, URL=${dbUrl}, isLocalDev=${isLocalDev}`);
+
+        const config = {
+          type: 'postgres' as const,
           url: dbUrl,
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
-          synchronize: configService.get('NODE_ENV', 'development') === 'development',
-          logging: configService.get('NODE_ENV', 'development') === 'development',
+          synchronize: nodeEnv === 'development',
+          logging: nodeEnv === 'development',
           autoLoadEntities: true,
-          // Critical for Supabase connection
-          ssl: {
-            rejectUnauthorized: false
-          },
           // Disable native pg-native for better compatibility
           native: false,
-          // Disable debug logs
-          debug: false,
           // Connection pool configuration
           poolSize: 10,
           // Maximum number of connection retries
@@ -43,13 +43,25 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
           // Retry delay in milliseconds
           retryDelay: 3000,
           connectTimeoutMS: 30000,
-          extra: {
+        };
+
+        // Only add SSL configuration for production or remote databases
+        if (isProduction || (!isLocalDev && dbUrl?.includes('postgres'))) {
+          console.log('Adding SSL configuration for remote database');
+          (config as any).ssl = {
+            rejectUnauthorized: false
+          };
+          (config as any).extra = {
             // IPv4 only
             family: 4,
             // Increase timeout
             connectionTimeoutMillis: 30000
-          }
-        };
+          };
+        } else {
+          console.log('Using local database without SSL');
+        }
+
+        return config;
       },
     }),
     
