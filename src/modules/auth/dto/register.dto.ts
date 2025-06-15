@@ -5,7 +5,7 @@ export class RegisterDto {
   @IsNotEmpty({ message: 'Email is required' })
   email: string;
 
-  @IsString()
+  @IsString({ message: 'Password must be a string' })
   @IsNotEmpty({ message: 'Password is required' })
   @MinLength(8, { message: 'Password must be at least 8 characters long' })
   @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
@@ -13,11 +13,11 @@ export class RegisterDto {
   })
   password: string;
 
-  @IsString()
+  @IsString({ message: 'First name must be a string' })
   @IsOptional()
   firstName?: string;
 
-  @IsString()
+  @IsString({ message: 'Last name must be a string' })
   @IsOptional()
   lastName?: string;
 }
